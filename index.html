@@ -288,6 +288,8 @@
     <script src="road.js"></script>
     <script src="centers.js"></script>
     <script src="mainss.js"></script>
+    <script src="connected.js"></script>
+    <script src="notconnected.js"></script>
     <script src="Leaflet.LocationShare.js"></script>
     <script src="leaflet.browser.print.js"></script>
     <script src="leaflet.zoomhome.min.js"></script>
@@ -450,7 +452,8 @@
                                                                 <p class="popup-content"><strong>Installation Date:</strong> ${feature.properties.Instl_date}</p>
                                                                 <p class="popup-content"><strong>Bandwidth Capacity (Mbps):</strong> ${feature.properties.B_Capacity}</p>
                                                                 <p class="popup-content"><strong>Fibre Length:</strong> ${feature.properties.Lengths}</p>
-                                                                <!-- Add more fiber attributes here -->
+                                                                <p class="popup-content"><strong>Revenue Information:</strong> <a href="dashboard.html" target="_blank">Click here</a></p>
+                                                               
                                                             </div>
                                                             <div class="tab-pane fade" id="operator-content">
                                                                 <p class="popup-title">Operator Information</p>
@@ -513,6 +516,22 @@
                 opacity: 1,
             }
         });
+        var connectedLayer = L.geoJSON(connected, {
+            style: {
+                color: 'green',
+                weight: 3,
+                opacity: 1,
+            }
+        });
+
+        var notconnectedLayer = L.geoJSON(notconnected, {
+            style: {
+                color: 'pink',
+                weight: 3,
+                opacity: 1,
+            }
+        });
+
        var centersLayer = L.geoJSON(center, {
             style: {
                 color: 'black',
@@ -578,6 +597,10 @@
               "DataCenter": {
                 "Centers": centersLayer,
                 "Main_Line": mainssLayer
+            },
+             "Buildings": {
+                "Connected": connectedLayer,
+                "Not_Connected": notconnectedLayer
             }
         };
 
@@ -608,63 +631,55 @@
                     ]
                 }, {
                     label: 'Locations',
-                    selectAllCheckbox: true,
-                    collapsed: true,
-                    children: [
+                    selectAllCheckbox: 'Un/select all',                  
+                    collapsed: false,
+                    children: [                                           
                         {
-                            selectAllCheckbox: true,
-                            children: [
-                                {
-                                    label: 'Routes',
-                                    layer: groupedOverlays.Locations.Routes,
-                                },
-                                {
-                                    label: 'Junction Nodes',
-                                    layer: groupedOverlays.Locations.Junction_Nodes,
-                                }
-                            ]
-                        }
-                    ]
-                }, {
-                    label: 'Roads',
-                    selectAllCheckbox: 'Un/select all',
-                    collapsed: true,
-                    children: [
-                        {
-                            selectAllCheckbox: true,
-                            children: [
-                                {
-                                    label: 'Road',
-                                    layer: groupedOverlays.Roads['Roads'],
-                                }
-                            ]
+                            label: 'Routes',
+                            layer: groupedOverlays.Locations.Routes,
                         },
+                        {
+                            label: 'Junction Nodes',
+                            layer: groupedOverlays.Locations.Junction_Nodes,
+                        }                            
+                        
                     ]
                 }, {
+                    label: 'Connected Buildings',                  
+                    collapsed: false,
+                    children: [                                              
+                        {
+                            label: 'Connected',
+                            layer: groupedOverlays.Buildings.Connected,
+                            checked: true 
+                        },
+                        {
+                            label: 'Not Connected',
+                            layer: groupedOverlays.Buildings.Not_Connected,
+                        }                            
+                        
+                    ]
+                },
+                {
                     label: 'Infrastacture',
                     selectAllCheckbox: true,
                     collapsed: true,
-                    children: [
+                    children: [                                                    
                         {
-                            selectAllCheckbox: true,
-                            children: [
-                                {
-                                    label: 'Data Center',
-                                    layer: groupedOverlays.DataCenter.Centers,
-                                   
-                                },
-                                {
-                                    label: 'Main Line',
-                                    layer: groupedOverlays.DataCenter.Main_Line,
-                                    
-                                }
-                            ]
-                        }
+                            label: 'Data Center',
+                            layer: groupedOverlays.DataCenter.Centers,
+                           
+                        },
+                        {
+                            label: 'Main Line',
+                            layer: groupedOverlays.DataCenter.Main_Line,
+                            
+                        }                        
+                        
                     ]
                 }, 
             ]
         };
-
 
         // Create a control layer with the tree structure for overlays
         var treeControl = L.control.layers.tree(null, overlaysTree, {
